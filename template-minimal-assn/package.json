@@ -1,7 +1,6 @@
 {
   "name": "template-minimal-assn",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "parcel index.html",
@@ -9,7 +8,9 @@
   },
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
-    "parcel-bundler": "1.12.4"
+    "parcel-bundler": "^1.12.4",
+    "phaser": "^3.52.0"
   }
 }

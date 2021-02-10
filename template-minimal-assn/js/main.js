@@ -1,4 +1,4 @@
-import "./phaser.js";
+import Phaser from 'phaser';
 
 // You can copy-and-paste the code from any of the examples at https://examples.phaser.io here.
 // You will need to change the `parent` parameter passed to `new Phaser.Game()` from
@@ -21,7 +21,7 @@ class MyScene extends Phaser.Scene {
     
     preload() {
         // Load an image and call it 'logo'.
-        this.load.image( 'logo', 'assets/phaser.png' );
+        this.load.image( 'logo', 'ufoBlue.png' );
     }
     
     create() {
