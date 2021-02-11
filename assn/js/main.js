@@ -22,10 +22,13 @@ class MyScene extends Phaser.Scene {
     preload() {
         // Load an image and call it 'logo'.
         this.load.image( 'logo', './assets/ship.png' );
+        this.load.image('phaser','./assets/phaser.png');
     }
     
     create() {
         // Create a sprite at the center of the screen using the 'logo' image.
+        this.add.image(0,0,'phaser');
+
         this.bouncy = this.physics.add.sprite( this.cameras.main.centerX, this.cameras.main.centerX, 'logo' );
         
         // Make it bounce off of the world bounds.
