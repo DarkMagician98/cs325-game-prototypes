@@ -20,15 +20,26 @@ class MyScene extends Phaser.Scene {
     }
     
     preload() {
+        
         // Load an image and call it 'logo'.
-        this.load.image( 'logo', './assets/ship.png' );
+        //this.load.image( 'logo', './assets/ship.png' );
         this.load.image('phaser','./assets/phaser.png');
+        this.load.image("terrain","./assets/terrain_set.png");
+        this.load.tilemapTiledJSON("map","./assets/Tile.json");
+    
     }
     
     create() {
+        
+        let mappy = this.add.tilemap("map");
+        let terrain = mappy.addTilesetImage("terrain_set","terrain");
         // Create a sprite at the center of the screen using the 'logo' image.
-        this.add.image(0,0,'phaser');
+        //this.add.image(0,0,'phaser');
+         let botLayer = mappy.createStaticLayer("Bot", [terrain], 0, 0).setDepth(-1);
+         let topLayer = mappy.createStaticLayer("Top", [terrain], 0, 0);
 
+        
+        
         this.bouncy = this.physics.add.sprite( this.cameras.main.centerX, this.cameras.main.centerX, 'logo' );
         
         // Make it bounce off of the world bounds.
