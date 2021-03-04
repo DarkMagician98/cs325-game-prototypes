@@ -61,7 +61,7 @@ export default class Game extends Phaser.Scene {
 
         this.platforms.create(220,190,'platform').setScale(2,2).refreshBody();
  
-        let maxStep = Phaser.Math.Between(5,5);
+        let maxStep = Phaser.Math.Between(5,20);
         let maxGarbage = 5;
         let garbageCount = 0;
 
@@ -82,7 +82,7 @@ export default class Game extends Phaser.Scene {
             }
             else if(random === 1){
                 platform = this.platforms.create(x, y, 'platform1');
-                if(randomGarbage < 5 && garbageCount<=maxGarbage){
+                if(randomGarbage < 5 && garbageCount<=maxGarbage && i !== maxStep-1 ){
                     gr = this.grass.create(x,y-47, 'grass');
                     garbageCount++;
                 }
@@ -96,7 +96,7 @@ export default class Game extends Phaser.Scene {
                 platform = this.platforms.create(x, y, 'platform3');
                 //mushroom
                // spike = this.spikes.create(x,y-47,'spike');
-               if(randomGarbage > 5 && garbageCount <= maxGarbage){
+               if(randomGarbage > 5 && garbageCount <= maxGarbage && i !== maxStep-1){
                    ms = this.mushroom.create(x,y-47,'mushroom');
                    garbageCount++;
                }
