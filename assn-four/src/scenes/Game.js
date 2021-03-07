@@ -2,6 +2,8 @@ import Phaser from '../lib/phaser.js'
 import Carrot from '../game/Carrot.js'
 
 //var player;
+
+
 export default class Game extends Phaser.Scene {
 
     /** @type {Phaser.Physics.Arcade.Sprite} */
@@ -18,6 +20,7 @@ export default class Game extends Phaser.Scene {
     highY
     gameOver
     music
+    check = 0
 
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
     platforms
@@ -25,12 +28,15 @@ export default class Game extends Phaser.Scene {
     /**
      * @type {Phaser.Physics.Arcade.Group}
      */
-
-   
     carrots
 
     constructor() {
         super('game')
+    }
+
+    init(){
+        this.check = this.sys.game._VOLUME;
+        this.sys.game._VOLUME = undefined;
     }
 
     preload() {
@@ -52,7 +58,11 @@ export default class Game extends Phaser.Scene {
 
     create() { 
 
-        this.music = this.sound.add('bg-music',{volume: .10});
+        console.log(this.check);
+
+        //this.scene.
+
+        this.music = this.sound.add('bg-music',{volume: .10, loop: true});
 
         this.music.play();
         //this.music = this.sound.play('bg-music', {volume: .10});
@@ -167,7 +177,7 @@ export default class Game extends Phaser.Scene {
 
         }
 
-        function getGarbage(player, garbage) {
+       function getGarbage(player, garbage) {
             /*  player.setTint(0xff0000);
               garbage.disableBody(true,true);
               this.collect++;*/
@@ -200,6 +210,13 @@ export default class Game extends Phaser.Scene {
 
         this.carrots.create(240, 320, 'carrot');
 
+        this.carrots.children.iterate(child=>{
+
+            child.body.checkCollision.up = false;
+            child.body.checkCollision.right = false;
+            child.body.checkCollision.left = false;
+        });
+
         //this.carrots.body.checkCollision.up = false;
 
 
@@ -221,14 +238,18 @@ export default class Game extends Phaser.Scene {
 
         this.physics.add.overlap(this.player, this.carrots, this.handleCollectCarrot, null, this);
 
+        console.log(this.check);
     }
 
 
 
     update() {
 
+      //  this.check = 10;
+
         if (this.gameOver) {
             this.scene.start('game-over');
+            this.scene.stop();
             this.music.stop();
 
         } else {
@@ -295,7 +316,6 @@ export default class Game extends Phaser.Scene {
             this.physics.pause();
         }*/
 
-        
 
         this.horizontalWrap(this.player);
         this.handleGameOver();
@@ -323,6 +343,8 @@ export default class Game extends Phaser.Scene {
             sprite.x = -halfWidth
         }
     }
+
+    
 
     addCarrotAbove(sprite) {
         const y = sprite.y - sprite.displayHeight
@@ -368,6 +390,11 @@ export default class Game extends Phaser.Scene {
             this.scoreText.setText("You lost");
             this.gameOver = true;
         }
+    }
+
+    changeVolume(volume){
+        this.check = volume;
+        return this.check;
     }
 
 }
