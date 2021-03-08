@@ -33,6 +33,10 @@ class MyScene extends Phaser.Scene {
         timedEvent
         timerLeft
 
+        coinScore
+        coinValue
+        coinHUD
+
         constructor() {
             super('main-game');
         }
@@ -47,17 +51,24 @@ class MyScene extends Phaser.Scene {
 
             this.cameras.main.setBackgroundColor(0x83B0EB);
 
+            this.heartScore = 0;
             this.coinChance = 50
             this.heartChance = 50
+            this.coinValue = 5;
+            this.coinScore = this.coinChance/this.coinValue;
             this.generateCount = 1
             this.generateRate = 5
             this.generateRateCounter = 0
             this.max = 10;
-            this.timerMax = 5000;
+            this.timerMax = 10000;
             this.timerLeft = this.timerMax/1000;
             this.timedEvent = this.time.addEvent({ delay: this.timerMax, callback: callBack, callbackScope: this, loop: false });
 
             this.scoreText = this.add.text(this.cameras.main.width-80,16,'Timer:' + this.timerMax/1000 ,{
+                fontSize: 40,
+            });
+
+            this.coinHUD = this.add.text(16,16,this.coinScore,{
                 fontSize: 40,
             });
 
@@ -113,6 +124,8 @@ class MyScene extends Phaser.Scene {
             this.timerLeft = Phaser.Math.RoundTo((this.timerMax/1000)-this.timedEvent.getElapsedSeconds());
 
             this.scoreText.setText(this.timerLeft);
+            this.coinHUD.setText(this.coinScore);
+
             var choice = Phaser.Math.Between(0, 100);
             var spriteBounds = Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(this.physics.world.bounds), 0, 0);
             var limit = this.coins.getLength() + this.hearts.getLength();
@@ -137,15 +150,18 @@ class MyScene extends Phaser.Scene {
                 this.sound.play('click');
                 this.isAllowed = true;
                 --this.coinCount;
-                this.coinChance += 5;
-
+                this.coinChance += this.coinValue;
+               // this.coinScore++;
+                this.coinScore--;
+               
             }
 
             if (this.heartCount != this.hearts.getLength()) {
                 this.sound.play('click');
                 this.isAllowed = true;
                 --this.heartCount;
-                this.coinChance -= 5;
+                this.coinChance -= this.coinValue;
+                this.coinScore++;
             }
 
             if (choice >= this.coinChance && this.isAllowed) {
@@ -263,13 +279,13 @@ class MyScene extends Phaser.Scene {
                     color: 150,
                     fontSize: 60
                 }).setOrigin(0.5);
-                var spaceText = this.add.text(screenCenterX, screenCenterY+50, 'Press Space to play again.', {
+                var spaceText = this.add.text(screenCenterX, screenCenterY+50, 'Press A to play again.', {
                     fill: 150,
                     color: 150,
                     fontSize: 20
                 }).setOrigin(0.5);
 
-                this.input.keyboard.on('keydown-SPACE', () => {
+                this.input.keyboard.on('keydown-A', () => {
                     this.scene.start('main-game');
                 });
 
