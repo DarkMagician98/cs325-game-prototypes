@@ -59,7 +59,7 @@ class MyScene extends Phaser.Scene {
             this.generateCount = 1
             this.generateRate = 5
             this.generateRateCounter = 0
-            this.max = 10;
+            this.max = 15;
             this.timerMax = 10000;
             this.timerLeft = this.timerMax/1000;
             this.timedEvent = this.time.addEvent({ delay: this.timerMax, callback: callBack, callbackScope: this, loop: false });
@@ -237,7 +237,7 @@ class MyScene extends Phaser.Scene {
 
             object.setInteractive();
             group.add(object);
-            object.setVelocity(Phaser.Math.Between(500, 600), Phaser.Math.Between(100, 200));
+            object.setVelocity(Phaser.Math.Between(550, 650), Phaser.Math.Between(200, 300));
             object.setBounce(1).setCollideWorldBounds(true);
             object.setScale(10).refreshBody();
 
