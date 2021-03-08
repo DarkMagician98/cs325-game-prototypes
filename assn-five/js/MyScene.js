@@ -60,7 +60,7 @@ class MyScene extends Phaser.Scene {
             this.generateRate = 5
             this.generateRateCounter = 0
             this.max = 15;
-            this.timerMax = 10000;
+            this.timerMax = 5000;
             this.timerLeft = this.timerMax/1000;
             this.timedEvent = this.time.addEvent({ delay: this.timerMax, callback: callBack, callbackScope: this, loop: false });
 
