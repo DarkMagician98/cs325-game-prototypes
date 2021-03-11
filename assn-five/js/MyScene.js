@@ -71,7 +71,7 @@ class MyScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(0x83B0EB);
         this.heartScore = 0;
         this.coinChance = 30
-        this.heartChance = 95
+        this.heartChance = 70
         this.coinValue = 5;
         this.coinScore = this.coinChance / this.coinValue;
         this.generateCount = 1
