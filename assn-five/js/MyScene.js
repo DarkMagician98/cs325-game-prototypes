@@ -130,8 +130,6 @@ class MyScene extends Phaser.Scene {
                 repeat: 1000
             });
 
-           console.log(rand);
-
             if (rand >= this.heartChance) {
                 addObject(block, this.coins);
             } else {
@@ -251,7 +249,7 @@ class MyScene extends Phaser.Scene {
 
         }
 
-        console.log(this.coinChance);
+       // console.log(this.coinChance);
 
 
         if (this.coinScore <= 0) {
