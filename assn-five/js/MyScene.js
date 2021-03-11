@@ -42,6 +42,8 @@ class MyScene extends Phaser.Scene {
 
     gameOverSound
 
+    changeScore = -1
+
     constructor() {
         super('main-game');
     }
@@ -50,30 +52,33 @@ class MyScene extends Phaser.Scene {
         this.load.image('coin', 'assets/gold-coin.png');
         this.load.image('heart', 'assets/heart.png');
         this.load.audio('click', 'assets/click.mp3');
-        this.load.audio('game-over', 'assets/game-over.mp3');
+        this.load.audio('game-over-sound', 'assets/game-over.mp3');
     }
 
     create() {
 
-        this.gameOverSound = this.sound.add('game-over', {
+        
+
+        this.gameOverSound = this.sound.add('game-over-sound', {
             volume: .30
         });
         this.gameOverSound.setRate(1.6);
+
 
         this.gameOverText = ['Are you trying?', 'Too fast for you?', 'Close...', 'Game Over', 'You suck', 'Try Again', 'Two Years Later', 'Yikes', 'Nice Try']
 
 
         this.cameras.main.setBackgroundColor(0x83B0EB);
         this.heartScore = 0;
-        this.coinChance = 50
-        this.heartChance = 50
+        this.coinChance = 30
+        this.heartChance = 95
         this.coinValue = 5;
         this.coinScore = this.coinChance / this.coinValue;
         this.generateCount = 1
         this.generateRate = 5
         this.generateRateCounter = 0
         this.max = 15;
-        this.timerMax = 5000;
+        this.timerMax = 15000;
         this.timerLeft = this.timerMax / 1000;
         this.timedEvent = this.time.addEvent({
             delay: this.timerMax,
@@ -114,8 +119,9 @@ class MyScene extends Phaser.Scene {
         for (var i = 0; i < this.max; i++) {
             var pos = Phaser.Geom.Rectangle.Random(spriteBounds);
 
-            var rand = Phaser.Math.Between(0, 1);
-            var block = this.physics.add.sprite(pos.x, pos.y, anims[rand]);
+            var rand = Phaser.Math.Between(0, 100);
+            var randObj = Phaser.Math.Between(0,1);
+            var block = this.physics.add.sprite(pos.x, pos.y, anims[randObj]);
 
             this.tweens.add({
                 targets: block,
@@ -124,7 +130,9 @@ class MyScene extends Phaser.Scene {
                 repeat: 1000
             });
 
-            if (rand === 0) {
+           console.log(rand);
+
+            if (rand >= this.heartChance) {
                 addObject(block, this.coins);
             } else {
                 addObject(block, this.hearts);
@@ -138,6 +146,13 @@ class MyScene extends Phaser.Scene {
 
     update() {
 
+        if(this.coins.getLength() < this.coinScore && this.changeScore === -1){
+            var removeCoins = this.coins.getLength() - this.coinScore;
+            var chanceIncrease = this.coinScore * removeCoins;
+            this.coinScore = this.coins.getLength();
+            this.changeScore = 0;
+
+        }
 
         this.timerLeft = Phaser.Math.RoundTo((this.timerMax / 1000) - this.timedEvent.getElapsedSeconds());
 
@@ -179,6 +194,7 @@ class MyScene extends Phaser.Scene {
             this.isAllowed = true;
             --this.heartCount;
             this.coinChance -= this.coinValue;
+            
             this.coinScore++;
         }
 
@@ -224,8 +240,6 @@ class MyScene extends Phaser.Scene {
             });
 
             addObject(block, this.coins);
-            //this.coins.add(block);
-
             this.coinCount++;
             this.isAllowed = false;
             if (this.generateRate !== this.generateRateCounter) {
@@ -237,8 +251,10 @@ class MyScene extends Phaser.Scene {
 
         }
 
+        console.log(this.coinChance);
 
-        if (this.coinChance >= 100) {
+
+        if (this.coinScore <= 0) {
             screenText = 'You Won!';
             this.scene.start('game-over');
         } else if (this.coinChance <= 0 || this.timerLeft <= 0) {
@@ -254,8 +270,6 @@ class MyScene extends Phaser.Scene {
 
             this.scene.start('game-over');
         }
-
-
 
     }
 
@@ -281,6 +295,45 @@ function callBack() {
     // console.log('Timer expired');
 }
 
+var GameStart = Phaser.Class({
+    Extends: Phaser.Scene,
+
+    initialize:
+
+    function GameStart(){
+        Phaser.Scene.call(this,{key: 'start-scene'});
+    },
+
+    preload: function(){
+       this.load.image('front-page','assets/front-page.png');
+       this.load.image('press-f','assets/press-f.png');
+    },
+
+    create: function(){
+        
+        this.add.image(0,0,'front-page').setOrigin(0);
+        var block = this.physics.add.sprite(400,280, 'press-f').setScale(1.4);
+
+        this.tweens.add({
+            targets: block,
+            alpha: 0,
+            duration: 1200,
+            repeat: 1000
+        });
+
+        this.input.keyboard.once('keydown-F',()=>{
+
+            this.scene.start('main-game');
+
+        });
+        
+    },
+
+    update: function(){
+
+    }
+});
+
 var GameOver = Phaser.Class({
     Extends: Phaser.Scene,
 
@@ -298,23 +351,24 @@ var GameOver = Phaser.Class({
     },
 
     create: function () {
-        this.cameras.main.setBackgroundColor(0xbababa);
+        this.cameras.main.setBackgroundColor(0xffffff);
         // console.log(screenText);
         //  this.add.image(0,0,'phaser').setOrigin(0).setScale(10);
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         var scoreText = this.add.text(screenCenterX, screenCenterY, screenText, {
             fill: 150,
-            color: 150,
+            color: '#00ff00',
             fontSize: 60
         }).setOrigin(0.5);
         var spaceText = this.add.text(screenCenterX, screenCenterY + 50, 'Press A to play again.', {
             fill: 150,
-            color: 150,
+            color: '#ffffff',
             fontSize: 20
         }).setOrigin(0.5);
 
         this.input.keyboard.on('keydown-A', () => {
+            this.sound.get('game-over-sound').stop();
             this.scene.start('main-game');
         });
 
@@ -331,7 +385,7 @@ const game = new Phaser.Game({
     parent: 'game',
     width: 800,
     height: 600,
-    scene: [MyScene, GameOver],
+    scene: [GameStart,MyScene, GameOver],
     physics: {
         default: 'arcade',
         arcade: {
