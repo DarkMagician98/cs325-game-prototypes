@@ -369,7 +369,8 @@ var GameStart = Phaser.Class({
 
     create: function(){
         
-        this.add.image(25,0,'cover-page').setOrigin(0);
+        const bg = this.add.image(55,10,'cover-page').setOrigin(0).setScale(.90);
+   
 
         this.input.keyboard.once('keydown-F',()=>{
 
