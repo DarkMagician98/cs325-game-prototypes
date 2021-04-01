@@ -353,13 +353,45 @@ var GameOver = Phaser.Class({
 });
 
 
+var GameStart = Phaser.Class({
+    Extends: Phaser.Scene,
+
+    initialize:
+
+    function GameStart(){
+        Phaser.Scene.call(this,{key: 'start-scene'});
+    },
+
+    preload: function(){
+       this.load.image('cover-page','assets/cover_page.png');
+      
+    },
+
+    create: function(){
+        
+        this.add.image(25,0,'cover-page').setOrigin(0);
+
+        this.input.keyboard.once('keydown-F',()=>{
+
+            this.scene.start('main-game');
+
+        });
+        
+    },
+
+    update: function(){
+
+    }
+});
+
+
 
 const game = new Phaser.Game({
 type: Phaser.AUTO,
 parent: 'game',
 width: 720,
 height: 640,
-scene: [MyScene,GameOver],
+scene: [GameStart,MyScene,GameOver],
 physics: {
     default: 'arcade',
     arcade: {
