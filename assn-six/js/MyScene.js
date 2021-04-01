@@ -33,7 +33,7 @@
 
 var cursors, up, down, left, right, player, enemy, block_shield;
 var blockUp, blockDown, blockRight, blockLeft, blockMax,
-    blockCount, screenText;
+    blockCount, screenText, tell;
 
 
 
@@ -62,6 +62,7 @@ class MyScene extends Phaser.Scene {
 
     create() {
 
+        
         this.speed = 1;
 
         this.blockCount = 0;
@@ -88,7 +89,7 @@ class MyScene extends Phaser.Scene {
 
         let spriteBounds = Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(this.physics.world.bounds), 0, 0);
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < Phaser.Math.Between(3,6); i++) {
             var pos = Phaser.Geom.Rectangle.Random(spriteBounds);
 
             if (pos.y >= 480) {
@@ -114,7 +115,8 @@ class MyScene extends Phaser.Scene {
 
         botLayer.setTileLocationCallback(1,1,1,1,()=>{
             this.scene.start('game-over');
-            this.screenText = "You won";
+            screenText = "You won";
+            this.tell = 1;
         })
 
         topLayer.setCollisionByProperty({
@@ -171,7 +173,7 @@ class MyScene extends Phaser.Scene {
             repeat: -1
         });
 
-        this.screenText = "You won";
+        screenText = "You won";
         this.player.play('idle', true);
     }
 
@@ -277,8 +279,9 @@ class MyScene extends Phaser.Scene {
 
 function killPlayer(player, enemy) {
     player.destroy();
-    this.screenText = "You lost";
+    screenText = "You lost";
     this.scene.start('game-over');
+    this.tell = 0;
 
 }
 
@@ -323,9 +326,9 @@ var GameOver = Phaser.Class({
         //  this.add.image(0,0,'phaser').setOrigin(0).setScale(10);
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-        console.log(this.screenText);
+        console.log("tell: " + this.tell);
 
-        var scoreText = this.add.text(screenCenterX, screenCenterY, this.screenText, {
+        var scoreText = this.add.text(screenCenterX, screenCenterY, screenText, {
             fill: 150,
             color: '#ffffff',
             fontSize: 60
@@ -353,7 +356,7 @@ var GameOver = Phaser.Class({
 
 const game = new Phaser.Game({
 type: Phaser.AUTO,
-parent: 'main-game',
+parent: 'game',
 width: 720,
 height: 640,
 scene: [MyScene,GameOver],
