@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Hello! Amaze!</title>
+    <style>
+        body {
+
+            color: #777;
+            font-family: "Avenir", Verdana, sans-serif;
+        }
+
+        #readme {
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="game"></div>
+    <div id="readme">
+        <h2>Ninja Clicker</h2>
+
+        <ul>
+            <li><strong>Originality:</strong>
+                The more the player clicks the wrong object, the more chances that the new object will spawn the 'heart' object, which is the ones the player shouldn't click.
+            </li>
+
+            <li><strong>Technical Merit:</strong>
+                Created a reusable function to avoid repetition.
+            </li>
+
+            <li><strong>Prototype Postmortem:</strong>
+                I learned a lot about Phaser's tween class and how to switch between scenes. Now I'm wondering how many scenes are use on games I play.
+                Learning how to balance the mechanics of the game. 
+            </li>
+
+            <li><strong>Prototype Assets:</strong>
+                Did you make your prototype assets from scratch? Did you borrow them? Cite your sources here.
+                <ul>
+                    <li>I borrowed them but I forgot the specific webpage. Although I know it's from this site: <a href="https://itch.io">Phaser logo</a></li>
+                </ul>
+            </li>
+
+            <li><strong>Prototype Closest Other Game:</strong>
+                Which other game most closely resembles your game? If you are borrowing code from a Phaser Example, you
+                must say so here. If you borrow code from elsewhere, you must say so here.
+            </li>
+
+            <li><strong>High Concept:</strong>
+                A clicking-game where your chances of winning lessens the more you click the wrong object. 
+            </li>
+
+            <li><strong>Theme:</strong>
+                I used the 'fame' theme. I just thought the more famous a person is, then the more followers he/she get. In this game's perspective,
+                the more the player clicks the same object, the more chance the game will generate that object.
+            </li>
+
+            <li><strong>Mandated Variety:</strong>
+                In terms of playstyle, it would be just players clicking on the right object to win. In terms of randomness, it would be based on chances.
+            </li>
+
+            <li><strong>Prototype Goal:</strong>
+               Fast-clicking
+            </li>
+
+            <li><strong>Player Experience Goals:</strong>
+                Intense
+            </li>
+
+            <li><strong>Gameplay:</strong>
+               Players can click on the objects that moves around the screen--click the right ones and win, click the wrong ones and lose. 
+               The game generate a new object each time the player clicks on an object. The more the player 
+               clicks on the wrong ones, the less the right object generates.
+            </li>
+
+            <li><strong>Strategies:</strong>
+                Play it over and over.
+            </li>
+
+            <li><strong>Story/Setting/Premise:</strong>
+                None
+            </li>
+
+            <li><strong>Target Audience:</strong>
+                Everyone
+            </li>
+
+            <li><strong>Play Time:</strong>
+                30 seconds per game
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- main.js must come at the end since it expects the HTML to have been created. -->
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.17.0/dist/phaser.min.js"></script>
+    <script src="js/MyScene.js"></script>
+   
+</body>
+
+</html>

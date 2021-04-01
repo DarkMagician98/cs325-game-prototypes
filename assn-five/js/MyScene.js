@@ -13,7 +13,7 @@ import "./phaser.js";
 var screenText;
 
 class MyScene extends Phaser.Scene {
-
+    
     coins
     hearts
     chance
@@ -57,17 +57,12 @@ class MyScene extends Phaser.Scene {
 
     create() {
 
-        
-
         this.gameOverSound = this.sound.add('game-over-sound', {
             volume: .30
         });
+
         this.gameOverSound.setRate(1.6);
-
-
         this.gameOverText = ['Are you trying?', 'Too fast for you?', 'Close...', 'Game Over', 'You suck', 'Try Again', 'Two Years Later', 'Yikes', 'Nice Try']
-
-
         this.cameras.main.setBackgroundColor(0x83B0EB);
         this.heartScore = 0;
         this.coinChance = 30
@@ -77,9 +72,10 @@ class MyScene extends Phaser.Scene {
         this.generateCount = 1
         this.generateRate = 5
         this.generateRateCounter = 0
-        this.max = 15;
+        this.max = 10;
         this.timerMax = 15000;
         this.timerLeft = this.timerMax / 1000;
+       
         this.timedEvent = this.time.addEvent({
             delay: this.timerMax,
             callback: callBack,
@@ -123,34 +119,29 @@ class MyScene extends Phaser.Scene {
             var randObj = Phaser.Math.Between(0,1);
             var block = this.physics.add.sprite(pos.x, pos.y, anims[randObj]);
 
-            this.tweens.add({
+           /*this.tweens.add({
                 targets: block,
                 alpha: 0,
                 duration: Phaser.Math.Between(1000, 3000),
                 repeat: 1000
-            });
-
-            if (rand >= this.heartChance) {
-                addObject(block, this.coins);
-            } else {
-                addObject(block, this.hearts);
-            }
+            });*/
+                addObject (block, this.coins);
         }
 
         this.coinCount = this.coins.getLength();
         this.heartCount = this.hearts.getLength();
         this.isAllowed = false;
-    }
-
-    update() {
 
         if(this.coins.getLength() < this.coinScore && this.changeScore === -1){
             var removeCoins = this.coins.getLength() - this.coinScore;
             var chanceIncrease = this.coinScore * removeCoins;
             this.coinScore = this.coins.getLength();
+            this.coinCount = this.coinScore;
             this.changeScore = 0;
-
         }
+    }
+
+    update() {
 
         this.timerLeft = Phaser.Math.RoundTo((this.timerMax / 1000) - this.timedEvent.getElapsedSeconds());
 
@@ -184,7 +175,6 @@ class MyScene extends Phaser.Scene {
             this.coinChance += this.coinValue;
             // this.coinScore++;
             this.coinScore--;
-
         }
 
         if (this.heartCount != this.hearts.getLength()) {
@@ -192,7 +182,6 @@ class MyScene extends Phaser.Scene {
             this.isAllowed = true;
             --this.heartCount;
             this.coinChance -= this.coinValue;
-            
             this.coinScore++;
         }
 
@@ -204,12 +193,12 @@ class MyScene extends Phaser.Scene {
                 //var rand = Phaser.Math.Between(0, 1);
                 var block = this.physics.add.sprite(pos.x, pos.y, 'heart');
 
-                this.tweens.add({
+               /* this.tweens.add({
                     targets: block,
                     alpha: 0,
                     duration: Phaser.Math.Between(1000, 3000),
                     repeat: 1000
-                });
+                });*/
 
                 addObject(block, this.hearts);
 
