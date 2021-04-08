@@ -144,7 +144,7 @@ class MyScene extends Phaser.Scene {
     update() {
 
         this.timerLeft = Phaser.Math.RoundTo((this.timerMax / 1000) - this.timedEvent.getElapsedSeconds());
-
+        // console.log("Timer: " + this.timedEvent.getElapsedSeconds());
         this.scoreText.setText(this.timerLeft);
         this.coinHUD.setText('Coin left:' + this.coinScore);
 
