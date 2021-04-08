@@ -182,7 +182,7 @@ class MyScene extends Phaser.Scene {
 
         let spriteBounds = Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(this.physics.world.bounds), 0, 0);
 
-        monsterCount = Phaser.Math.Between(1, 3);
+        monsterCount = Phaser.Math.Between(3, 6);
 
         for (let i = 0; i < monsterCount; i++) {
             var pos = Phaser.Geom.Rectangle.Random(spriteBounds);
