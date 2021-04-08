@@ -330,7 +330,7 @@ class MyScene extends Phaser.Scene {
 
             } else if (Phaser.Input.Keyboard.JustDown(blockDown)) {
                 let posx = this.player.x;
-                let posy = this.plasyer.y;
+                let posy = this.player.y;
 
                 let blockPosX = Math.floor(this.player.x / 80) * 80;
                 let blockPosY = Math.floor(this.player.y / 80) * 80 + 80;
