@@ -172,6 +172,8 @@ class MyScene extends Phaser.Scene {
         let terrain = mappy.addTilesetImage("ninja_tileset", "tilesheet");
         let botLayer = mappy.createStaticLayer("bot", [terrain], 0, 0);
         let topLayer = mappy.createStaticLayer("top", [terrain], 0, 0);
+        let blockLayer = mappy.createStaticLayer("block",[terrain],0,0);
+        blockLayer.setScale(5);
         botLayer.setScale(5);
         topLayer.setScale(5);
 
@@ -203,6 +205,7 @@ class MyScene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, topLayer);
         this.physics.add.collider(this.enemy, topLayer);
+        this.physics.add.collider(this.enemy,blockLayer);
         this.physics.add.collider(this.enemy, this.block_shield);
         this.physics.add.collider(this.enemy, this.player, killPlayer, null, this);
         this.physics.add.overlap(this.enemy, this.block_shield, killEnemy, null, this);
@@ -232,6 +235,7 @@ class MyScene extends Phaser.Scene {
 
 
         //const ground = map.createStaticLayer('Ground',tileset,0,0);
+        blockLayer.setCollision([228]);
         topLayer.setCollision([409, 309, 310]);
         this.cursors = this.input.keyboard.createCursorKeys();
 
