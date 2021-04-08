@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Hello! Amaze!</title>
+    <style>
+        body {
+
+            color: #777;
+            font-family: "Avenir", Verdana, sans-serif;
+        }
+
+        #readme {
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="game"></div>
+    <div id="readme">
+        <h2>Block Shot</h2>
+
+        <ul>
+            <li><strong>Originality:</strong>
+               Kills the monsters will a weapon that blocks their movement. Score system is implemented. 
+            </li>
+
+            <li><strong>Technical Merit:</strong>
+                Created a lot of reusable function to avoid repetition.
+            </li>
+
+            <li><strong>Prototype Postmortem:</strong>
+                I learned a lot about Phaser's callback functions, local and global scopes, and some ways of creating the score system.
+            </li>
+
+            <li><strong>Prototype Assets:</strong>
+                Did you make your prototype assets from scratch? Did you borrow them? Cite your sources here.
+                <ul>
+                    <li>I created the weapon block but I borrowed the rest. I forgot the specific webpage although I know it's from this site: <a href="https://itch.io">Phaser logo</a></li>
+                </ul>
+            </li>
+
+            <li><strong>Prototype Closest Other Game:</strong>
+                Which other game most closely resembles your game? If you are borrowing code from a Phaser Example, you
+                must say so here. If you borrow code from elsewhere, you must say so here.
+                I guess game's that are maze-type games. I didn't really looked at any phaser examples, it just came to mind. It probably started from the first Analog Assignment I had that is basically also a maze game.
+            </li>
+
+            <li><strong>High Concept:</strong>
+                A maze game that speeds up the monsters as the level go up.
+            </li>
+
+            <li><strong>Theme:</strong>
+                The theme for this game is all about speed and instensity. The more the player goes up a level, the harder it is to score points.
+            </li>
+
+            <li><strong>Mandated Variety:</strong>
+                  
+                In terms of playstyle, the player can move to a certain location or place a block to block the enemies from killing the character. The randomness is applied in how many enemies respawn at a certain level.
+            </li>
+
+            <li><strong>Prototype Goal:</strong>
+               Fast-thinking and stress-inducing
+            </li>
+
+            <li><strong>Player Experience Goals:</strong>
+                Intense, rage, and frustration
+            </li>
+
+            <li><strong>Gameplay:</strong>
+               Players can move around the area where it's not blocked. The player can use block to either kill monster/s or use it to block them. There's only one goal in this game: reach the escape region without getting hit by the raging monsters. 
+            </li>
+
+            <li><strong>Strategies:</strong>
+                Play it calmly and use blocks wisely.
+            </li>
+
+            <li><strong>Story/Setting/Premise:</strong>
+                None
+            </li>
+
+            <li><strong>Target Audience:</strong>
+                Everyone
+            </li>
+
+            <li><strong>Play Time:</strong>
+                Indefinite
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- main.js must come at the end since it expects the HTML to have been created. -->
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.17.0/dist/phaser.min.js"></script>
+    <script src="js/MyScene.js"></script>
+   
+</body>
+
+</html>
