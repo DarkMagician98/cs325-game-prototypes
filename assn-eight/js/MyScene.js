@@ -251,15 +251,15 @@ class MyScene extends Phaser.Scene {
                 if (leftRange < 0) {
                     extendedLeftRange = leftRange < 0 ? (this.max + leftRange) % this.max : leftRange % this.max;
                     caseConst = 0;
-                    console.log("Left: " + extendedLeftRange + " Right:" + rightRange);
+                  //  console.log("Left: " + extendedLeftRange + " Right:" + rightRange);
                 } else if (rightRange > 100) {
                     extendedRightRange = rightRange >= 100 ? (this.max + rightRange) % this.max : rightRange % this.max;
                     caseConst = 1;
-                    console.log("Left: " + leftRange + " Right:" + extendedRightRange);
+                  //  console.log("Left: " + leftRange + " Right:" + extendedRightRange);
 
                 } else {
                     caseConst = 2;
-                    console.log("Left: " + leftRange + " Right:" + rightRange);
+                  //  console.log("Left: " + leftRange + " Right:" + rightRange);
 
                 }
 
@@ -340,28 +340,28 @@ class MyScene extends Phaser.Scene {
             }
 
             if (this.hpDiv === 3) {
-                localStorage.setItem('highScore', this.score);
+                let highScore = localStorage.getItem('highScore');
+
+                if (highScore !== null) {
+                    if (highScore < this.score) {
+                        localStorage.setItem('highScore', this.score);
+                    }
+                } else {
+                    localStorage.setItem('highScore', this.score);
+                }
+                //localStorage.setItem('highScore', this.score);
                 this.scene.start('game-over');
             }
 
-
-            //  this.hScoreText.setText("Score:" + this.)
-            // console.log("Scorehhh: " + localStorage.getItem('highscore'));
-            // console.log("hp: " + this.hpDiv);
-            //console.log("Mult" + this.multiplier);
             this.scoreText.setText("Score: " + this.score);
             this.guess = "";
         }
-
-        //  console.log(hintState.getCurrentState());
-        //  console.log(this.runPowerup(this.generatedSecretNumber));
         let tempString = this.runPowerup(this.generatedSecretNumber, this.powerupTotal);
         if (tempString) {
-            console.log("in string");
+         //   console.log("in string");
             this.hintString += tempString + '\n';
         }
-        console.log(this.generatedSecretNumber);
-        // console.log(this.hintString);
+
         this.powerupsAmountString = "x" + this.powerupTotal.div + "\t\t\t\t\t\t\t\tx" + this.powerupTotal.narrow + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.od;
         this.powerupAmountText.setText(this.powerupsAmountString);
         this.hintText.setText(this.hintString);
@@ -520,7 +520,7 @@ class MyScene extends Phaser.Scene {
     narrowGuessPowerup(secretNumber) {
 
         let rangeArea = "";
-        console.log(secretNumber);
+        //console.log(secretNumber);
 
         let range = 30; //this is the percentage of where the answer is within.
         let lrange = Phaser.Math.Between(0, 100);
@@ -570,16 +570,18 @@ var GameStart = Phaser.Class({
         },
 
     preload: function () {
-        this.load.audio('applause','./assets/applause.mp3');
+        this.load.audio('applause', './assets/applause.mp3');
     },
 
     create: function () {
 
-        this.applauseSound = this.sound.add('applause',{volume:0.4});
+        this.applauseSound = this.sound.add('applause', {
+            volume: 0.4
+        });
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         // let titleName = "FOR THE MEME"
-        this.levelText = this.add.text(screenCenterX, screenCenterY-15, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
+        this.levelText = this.add.text(screenCenterX, screenCenterY - 15, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 50,
@@ -627,7 +629,7 @@ var GameOver = Phaser.Class({
         },
 
     preload: function () {
-        this.load.audio('boo','./assets/crowdboo.mp3');
+        this.load.audio('boo', './assets/crowdboo.mp3');
     },
 
     create: function () {
