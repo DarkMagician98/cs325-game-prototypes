@@ -42,6 +42,8 @@
 
 var zero, one, two, three, four, five, six, seven, eight, nine, backspace, enter;
 
+var revealNumber =0;
+
 var hintState = {
     DIV: 0,
     ODDEVEN: 1,
@@ -340,6 +342,7 @@ class MyScene extends Phaser.Scene {
             }
 
             if (this.hpDiv === 3) {
+                revealNumber = this.generatedSecretNumber;
                 let highScore = localStorage.getItem('highScore') || 0;
 
                 if (highScore < this.score) {
@@ -638,13 +641,19 @@ var GameOver = Phaser.Class({
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
 
 
+        var answerText = this.add.text(screenCenterX, screenCenterY + 30, "Correct Number:" + revealNumber, {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 30
+        }).setOrigin(0.5);
+
         var gameoverText = this.add.text(screenCenterX, screenCenterY - 20, 'GAME OVER', {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 50
         }).setOrigin(0.5);
 
-        var spaceText = this.add.text(screenCenterX, screenCenterY + 50, 'Press A to play again.', {
+        var spaceText = this.add.text(screenCenterX, screenCenterY + 70, 'Press A to play again.', {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 20

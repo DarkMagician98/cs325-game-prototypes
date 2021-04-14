@@ -42,6 +42,8 @@
 
 var zero, one, two, three, four, five, six, seven, eight, nine, backspace, enter;
 
+var revealNumber;
+
 var hintState = {
     DIV: 0,
     ODDEVEN: 1,
@@ -106,6 +108,7 @@ class MyScene extends Phaser.Scene {
     memeSound
     button
     winSoundRate
+    wrongAnswerSound
 
     //text variables
     guess
@@ -167,6 +170,7 @@ class MyScene extends Phaser.Scene {
         this.load.audio('click', './assets/click.mp3');
         this.load.audio('heartbeat', './assets/heartbeat.wav');
         this.load.audio('win', './assets/win.mp3');
+        this.load.audio('wrongNumber', './assets/wrong_answer.mp3');
         this.load.audio('memewin', './assets/meme_win.mp3');
         this.load.image('frame', './assets/bg-frame.png');
         this.load.image('bg_yellow', './assets/yellow_bg.png');
@@ -194,6 +198,7 @@ class MyScene extends Phaser.Scene {
         this.memeSound = this.sound.add('memewin', );
         this.clickSound = this.sound.add('click', );
         this.winSound = this.sound.add('win');
+        this.wrongAnswerSound = this.sound.add('wrongNumber',{rate:1.3,volume:.5});
 
         let buttonOffsetX = 120,
             buttonOffsetY = 100;
@@ -297,6 +302,7 @@ class MyScene extends Phaser.Scene {
                 if (caseConst === 0) {
 
                     if ((myGuess >= extendedLeftRange && myGuess <= 100) || (myGuess <= rightRange)) {
+                        this.hintString = "";
 
                         this.winSound.play();
                         this.winSoundRate += .1;
@@ -314,6 +320,8 @@ class MyScene extends Phaser.Scene {
                         this.powerUpReward(this.powerupTotal);
 
                     } else {
+
+                        this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
 
@@ -328,6 +336,7 @@ class MyScene extends Phaser.Scene {
                     }
                 } else if (caseConst === 1) {
                     if ((myGuess <= extendedRightRange && myGuess >= 0) || (myGuess >= leftRange)) {
+                        this.hintString = "";
                         this.winSound.play();
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
@@ -343,6 +352,7 @@ class MyScene extends Phaser.Scene {
                         this.powerUpReward(this.powerupTotal);
                         //   this.score++;
                     } else {
+                        this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
 
@@ -356,6 +366,7 @@ class MyScene extends Phaser.Scene {
                 } else if (caseConst === 2) {
                     //   console.log("LaR");
                     if (myGuess >= leftRange && myGuess <= rightRange) {
+                        this.hintString = "";
                         this.winSound.play();
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
@@ -369,6 +380,7 @@ class MyScene extends Phaser.Scene {
 
                         this.powerUpReward(this.powerupTotal);
                     } else {
+                        this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
 
@@ -381,7 +393,6 @@ class MyScene extends Phaser.Scene {
                     }
                 }
                 this.score += (tempScore * this.multiplier);
-                this.hintString = "";
             }
 
             if(this.hpDiv === 2){
@@ -389,6 +400,7 @@ class MyScene extends Phaser.Scene {
             }
 
             if (this.hpDiv === 3) {
+                revealNumber = this.generatedSecretNumber;
                 this.heartBeat.stop();
                 this.matchCount = 0;
 
@@ -670,30 +682,40 @@ var GameStart = Phaser.Class({
         },
 
     preload: function () {
+        this.load.audio('intro','./assets/intro_music.mp3');
         this.load.audio('applause', './assets/applause.mp3');
     },
 
     create: function () {
 
+        this.introSound = this.sound.add('intro');
+        this.introSound.play();
         this.applauseSound = this.sound.add('applause', {
             volume: 0.4
         });
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         // let titleName = "FOR THE MEME"
-        this.levelText = this.add.text(screenCenterX, screenCenterY - 15, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
+        this.levelText = this.add.text(screenCenterX, screenCenterY - 50, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 50,
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
-        this.add.text(screenCenterX, screenCenterY + 40, "Press F to start", {
+        this.startButton = this.add.text(screenCenterX, screenCenterY + 40, "Press F to start", {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 20,
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: this.startButton,
+            alpha: 0,
+            duration: 1000,
+            repeat: 1000
+        });
 
         let instructions = "Instructions:\n Type a number to answer\n 'Enter' to submit answer\n Powerups:\n  Div: shows a list of number(0-10) divisible to the secret number\n  Narrow-down: shows an area of where the secret number\n  o/d: odd/even\n  reveal: reveals the secret number\n  half: shows which half of the spectrum the number is located"
         this.add.text(20, screenCenterY + 130, instructions, {
@@ -705,7 +727,9 @@ var GameStart = Phaser.Class({
 
 
         this.input.keyboard.once('keydown-F', () => {
-            this.applauseSound.play();
+           // this.introSound.stop();
+           this.introSound.setVolume(0.1);
+           this.applauseSound.play();
             this.scene.start('main-game');
 
         });
@@ -735,8 +759,7 @@ var GameOver = Phaser.Class({
 
     create: function () {
         this.applauseSound = this.sound.add('applause');
-        this.booSound = this.sound.add('boo');
-        this.booSound.play();
+  
         //mainSound.stop();
         this.cameras.main.setBackgroundColor('#000000');
         // console.log(screenText);
@@ -744,22 +767,27 @@ var GameOver = Phaser.Class({
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
 
-        var gameOverText = this.add.text(screenCenterX, screenCenterY -20, 'GAME OVER', {
+        var answerText = this.add.text(screenCenterX, screenCenterY + 30, "Correct Number:" + revealNumber, {
             fill: '#ffffff',
             color: '#ffffff',
-            fontSize: 50
+            fontSize: 30
         }).setOrigin(0.5);
 
-        var spaceText = this.add.text(screenCenterX, screenCenterY + 50, 'Press A to play again.', {
+        var gameOverText = this.add.text(screenCenterX, screenCenterY -50, 'GAME OVER', {
             fill: '#ffffff',
             color: '#ffffff',
-            fontSize: 20
+            fontSize: 80
+        }).setOrigin(0.5);
+
+        var spaceText = this.add.text(screenCenterX, screenCenterY + 70, 'Press A to play again.', {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 15
         }).setOrigin(0.5);
 
         
 
         this.input.keyboard.on('keydown-A', () => {
-            this.booSound.stop();
             this.applauseSound.play();
             this.scene.start('main-game');
         });
