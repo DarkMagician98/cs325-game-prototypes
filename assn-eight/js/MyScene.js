@@ -68,7 +68,7 @@ class MyScene extends Phaser.Scene {
     generatedSecretNumber
     max = 100;
     level
-    percentRate = .05
+    percentRate = .10
     multiplier
 
     //prize variables
@@ -251,15 +251,15 @@ class MyScene extends Phaser.Scene {
                 if (leftRange < 0) {
                     extendedLeftRange = leftRange < 0 ? (this.max + leftRange) % this.max : leftRange % this.max;
                     caseConst = 0;
-                  //  console.log("Left: " + extendedLeftRange + " Right:" + rightRange);
+                    //  console.log("Left: " + extendedLeftRange + " Right:" + rightRange);
                 } else if (rightRange > 100) {
                     extendedRightRange = rightRange >= 100 ? (this.max + rightRange) % this.max : rightRange % this.max;
                     caseConst = 1;
-                  //  console.log("Left: " + leftRange + " Right:" + extendedRightRange);
+                    //  console.log("Left: " + leftRange + " Right:" + extendedRightRange);
 
                 } else {
                     caseConst = 2;
-                  //  console.log("Left: " + leftRange + " Right:" + rightRange);
+                    //  console.log("Left: " + leftRange + " Right:" + rightRange);
 
                 }
 
@@ -271,7 +271,7 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                        console.log("Correct");
+                        // console.log("Correct");
 
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
 
@@ -297,7 +297,7 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                        console.log("Correct");
+                        //  console.log("Correct");
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
                         tempScore = 1;
                         this.multiplier++;
@@ -319,7 +319,7 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                        console.log("Correct");
+                        //   console.log("Correct");
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
                         tempScore = 1;
                         this.multiplier++;
@@ -340,16 +340,12 @@ class MyScene extends Phaser.Scene {
             }
 
             if (this.hpDiv === 3) {
-                let highScore = localStorage.getItem('highScore');
+                let highScore = localStorage.getItem('highScore') || 0;
 
-                if (highScore !== null) {
-                    if (highScore < this.score) {
-                        localStorage.setItem('highScore', this.score);
-                    }
-                } else {
+                if (highScore < this.score) {
                     localStorage.setItem('highScore', this.score);
                 }
-                //localStorage.setItem('highScore', this.score);
+
                 this.scene.start('game-over');
             }
 
@@ -358,7 +354,7 @@ class MyScene extends Phaser.Scene {
         }
         let tempString = this.runPowerup(this.generatedSecretNumber, this.powerupTotal);
         if (tempString) {
-         //   console.log("in string");
+            //   console.log("in string");
             this.hintString += tempString + '\n';
         }
 
@@ -595,7 +591,7 @@ var GameStart = Phaser.Class({
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
-        let instructions = "Instructions:\n Type numbers to answer\n 'Enter' to submit answer\n Powerups:\n  Div: shows a list of number(0-10) divisible to the secret number\n  Narrow-down: shows an area of where the secret number\n  o/d: odd/even"
+        let instructions = "Instructions:\n Type a number to answer\n 'Enter' to submit answer\n Powerups:\n  Div: shows a list of number(0-10) divisible to the secret number\n  Narrow-down: shows an area of where the secret number\n  o/d: odd/even"
         this.add.text(20, screenCenterY + 150, instructions, {
             fill: '#ffffff',
             color: '#ffffff',
@@ -640,6 +636,13 @@ var GameOver = Phaser.Class({
         //  this.add.image(0,0,'phaser').setOrigin(0).setScale(10);
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+
+
+        var gameoverText = this.add.text(screenCenterX, screenCenterY - 20, 'GAME OVER', {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 50
+        }).setOrigin(0.5);
 
         var spaceText = this.add.text(screenCenterX, screenCenterY + 50, 'Press A to play again.', {
             fill: '#ffffff',

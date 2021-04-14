@@ -46,7 +46,8 @@ var hintState = {
     DIV: 0,
     ODDEVEN: 1,
     NARROWGUESS: 2,
-
+    REVEAL: 3,
+    HALF: 4,
     CURRENTSTATE: -1,
 
     setCurrentState: function (state) {
@@ -55,6 +56,30 @@ var hintState = {
     },
     getCurrentState: function () {
         return this.CURRENTSTATE;
+    }
+}
+
+var powerupDropChance = {
+    DIV: 15,
+    ODDEVEN: 25,
+    NARROWGUESS: 15,
+    REVEAL: 5,
+    HALF: 50,
+
+    resetDropChance: function(){
+        this.DIV =  15;
+        this.ODDEVEN = 25;
+        this.NARROWGUESS = 15;
+        this.REVEAL = 5;
+        this.HALF = 50;
+    },
+
+    increaseDropChance: function(){
+        this.DIV += 3;
+        this.ODDEVEN += 5;
+        this.NARROWGUESS += 3;
+        this.REVEAL += 1;
+        this.HALF += 10;
     }
 }
 
@@ -69,13 +94,11 @@ class MyScene extends Phaser.Scene {
     generatedSecretNumber
     max = 100;
     level
-    percentRate = .05
+    percentRate = .10
     multiplier
 
     //prize variables
-    prizesShown
-    prizeLevel
-    prizePosition = 34
+ 
 
     //sound variabales 
     clickSound
@@ -100,7 +123,9 @@ class MyScene extends Phaser.Scene {
     powerupTotal = {
         div: 1,
         narrow: 1,
-        od: 1
+        od: 2,
+        reveal: 0,
+        half: 2
     }
 
     //hp
@@ -111,13 +136,13 @@ class MyScene extends Phaser.Scene {
     hScoreText
 
 
-
-
     init() {
 
-        this.powerupTotal.div = 1;
-        this.powerupTotal.od = 1;
+        this.powerupTotal.div = Phaser.Math.Between(2,3);
+        this.powerupTotal.od = Phaser.Math.Between(2,3);
         this.powerupTotal.narrow = 1;
+        this.powerupTotal.reveal = 0;
+        this.powerupTotal.half = 2;
 
         this.winSoundRate = 1;
         this.hpDiv = 0;
@@ -140,6 +165,7 @@ class MyScene extends Phaser.Scene {
 
     preload() {
         this.load.audio('click', './assets/click.mp3');
+        this.load.audio('heartbeat', './assets/heartbeat.wav');
         this.load.audio('win', './assets/win.mp3');
         this.load.audio('memewin', './assets/meme_win.mp3');
         this.load.image('frame', './assets/bg-frame.png');
@@ -151,22 +177,27 @@ class MyScene extends Phaser.Scene {
         this.load.image('lifeline', './assets/lifeline.png');
         this.load.image('lifeframe', './assets/lifeline_frame.png');
         this.load.image('big-frame', './assets/big_frame.png');
+        this.load.image('reveal', './assets/rev-button.png');
+        this.load.image('half', './assets/half-button.png');
     };
 
     create() {
 
+        
+        
         //CENTERS Object on the screen.
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-
+        
         //add sound to the game. 
+        this.heartBeat = this.sound.add('heartbeat',{loop:true,volume:.2,rate:.8});
         this.memeSound = this.sound.add('memewin', );
         this.clickSound = this.sound.add('click', );
         this.winSound = this.sound.add('win');
 
         let buttonOffsetX = 120,
             buttonOffsetY = 100;
-        let buttonX = -15,
+        let buttonX = -145,
             buttonY = 10;
 
         let moveAllXUI = 0,
@@ -175,6 +206,8 @@ class MyScene extends Phaser.Scene {
         this.createButton(moveAllXUI + buttonX + screenCenterX - buttonOffsetX, moveAllYUI + buttonY + screenCenterY + buttonOffsetY, 'dbp', this.button, 'div', '0xff10ff', 1.5);
         this.createButton(moveAllXUI + buttonX + screenCenterX, buttonY + screenCenterY + buttonOffsetY + moveAllYUI, 'nbp', this.button, 'narrowguess', '0xff10ff', 1.5);
         this.createButton(moveAllXUI + buttonX + screenCenterX + buttonOffsetX, moveAllYUI + buttonY + screenCenterY + buttonOffsetY, 'odp', this.button, 'oddeven', '0xff10ff', 1.5);
+        this.createButton(moveAllXUI + buttonX + screenCenterX + buttonOffsetX + buttonOffsetX, moveAllYUI + buttonY + screenCenterY + buttonOffsetY, 'reveal', this.button, 'reveal', '0xff10ff', 1.5);
+        this.createButton(moveAllXUI + buttonX + screenCenterX + buttonOffsetX + buttonOffsetX + buttonOffsetX, moveAllYUI + buttonY + screenCenterY + buttonOffsetY, 'half', this.button, 'half', '0xff10ff', 1.5);
 
         this.add.image(10 + moveAllXUI, 120 + moveAllYUI, 'big-frame').setOrigin(0);
         this.add.image(screenCenterX - 115 + 20 + moveAllXUI, screenCenterY + moveAllYUI, 'lifeframe').setScale(1, 1.3);
@@ -196,10 +229,10 @@ class MyScene extends Phaser.Scene {
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
-        this.hintText = this.add.text(screenCenterX - 50 + moveAllXUI, screenCenterY + 220 + moveAllYUI, this.hintString, {
+        this.hintText = this.add.text(screenCenterX - 50 + moveAllXUI, screenCenterY + 230 + moveAllYUI, this.hintString, {
             fill: '#ffffff',
             color: '#ffffff',
-            fontSize: 25,
+            fontSize: 20,
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
@@ -222,7 +255,6 @@ class MyScene extends Phaser.Scene {
 
     update() {
 
-        // console.log("My name is: " + localStorage.getItem('name'));
         this.keyboardKeys();
 
         this.guessText.setText(this.guess);
@@ -231,14 +263,12 @@ class MyScene extends Phaser.Scene {
 
 
             let range = Math.round(this.percentRate * this.max);
-            // console.log("In enter...");
             let leftRange = this.generatedSecretNumber - range;
             let rightRange = this.generatedSecretNumber + range;
             let caseConst = -1;
             let extendedLeftRange = 0,
                 extendedRightRange = 0;
 
-            // console.log("Guess log: " + this.guess);
             let myGuess = undefined;
 
             if (this.guess != "") {
@@ -252,15 +282,15 @@ class MyScene extends Phaser.Scene {
                 if (leftRange < 0) {
                     extendedLeftRange = leftRange < 0 ? (this.max + leftRange) % this.max : leftRange % this.max;
                     caseConst = 0;
-                    console.log("Left: " + extendedLeftRange + " Right:" + rightRange);
+                    //console.log("Left: " + extendedLeftRange + " Right:" + rightRange);
                 } else if (rightRange > 100) {
                     extendedRightRange = rightRange >= 100 ? (this.max + rightRange) % this.max : rightRange % this.max;
                     caseConst = 1;
-                    console.log("Left: " + leftRange + " Right:" + extendedRightRange);
+                   // console.log("Left: " + leftRange + " Right:" + extendedRightRange);
 
                 } else {
                     caseConst = 2;
-                    console.log("Left: " + leftRange + " Right:" + rightRange);
+                   // console.log("Left: " + leftRange + " Right:" + rightRange);
 
                 }
 
@@ -272,12 +302,14 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                        console.log("Correct");
+                        //console.log("Correct");
 
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
 
                         tempScore = 1;
                         this.multiplier++;
+
+                        powerupDropChance.increaseDropChance();
 
                         this.powerUpReward(this.powerupTotal);
 
@@ -286,6 +318,8 @@ class MyScene extends Phaser.Scene {
                         this.winSound.setRate(this.winSoundRate);
 
                         this.multiplier = 0;
+                        powerupDropChance.resetDropChance();
+
                         this.hpDiv++;
                         let dmg = (this.hitpoints / this.hp) * this.hpDiv;
 
@@ -298,10 +332,14 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                        console.log("Correct");
+                       // console.log("Correct");
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
                         tempScore = 1;
                         this.multiplier++;
+
+                        
+                        powerupDropChance.increaseDropChance();
+
                         this.powerUpReward(this.powerupTotal);
                         //   this.score++;
                     } else {
@@ -309,6 +347,8 @@ class MyScene extends Phaser.Scene {
                         this.winSound.setRate(this.winSoundRate);
 
                         this.multiplier = 0;
+                        powerupDropChance.resetDropChance();
+
                         this.hpDiv++;
                         let dmg = (this.hitpoints / this.hp) * this.hpDiv;
                         this.hpDisplay.setScale(1, this.hitpoints - dmg);
@@ -320,17 +360,21 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                        console.log("Correct");
+                      //  console.log("Correct");
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
                         tempScore = 1;
                         this.multiplier++;
+                        
+                        powerupDropChance.increaseDropChance();
+
                         this.powerUpReward(this.powerupTotal);
                     } else {
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
 
-
                         this.multiplier = 0;
+                        powerupDropChance.resetDropChance();
+
                         this.hpDiv++;
                         let dmg = (this.hitpoints / this.hp) * this.hpDiv;
                         this.hpDisplay.setScale(1, this.hitpoints - dmg);
@@ -340,44 +384,57 @@ class MyScene extends Phaser.Scene {
                 this.hintString = "";
             }
 
+            if(this.hpDiv === 2){
+                this.heartBeat.play();
+            }
+
             if (this.hpDiv === 3) {
+                this.heartBeat.stop();
+                this.matchCount = 0;
+
                 let highScore = localStorage.getItem('highScore');
 
-                if(highScore !== null){
-                    if(highScore < this.score){
-                        localStorage.setItem('highScore',this.score);
+                if (highScore !== null) {
+                    if (highScore < this.score) {
+                        localStorage.setItem('highScore', this.score);
                     }
-                }
-                else{
-                    localStorage.setItem('highScore',this.score);
+                } else {
+                    localStorage.setItem('highScore', this.score);
                 }
                 //localStorage.setItem('highScore', this.score);
                 this.scene.start('game-over');
             }
 
 
-            //  this.hScoreText.setText("Score:" + this.)
-            // console.log("Scorehhh: " + localStorage.getItem('highscore'));
-            // console.log("hp: " + this.hpDiv);
-            //console.log("Mult" + this.multiplier);
             this.scoreText.setText("Score: " + this.score);
             this.guess = "";
         }
 
-        //  console.log(hintState.getCurrentState());
-        //  console.log(this.runPowerup(this.generatedSecretNumber));
         let tempString = this.runPowerup(this.generatedSecretNumber, this.powerupTotal);
+       
         if (tempString) {
-            console.log("in string");
+           // console.log("in string");
             this.hintString += tempString + '\n';
+           // console.log("Index:" + this.hintString.match('\n').index);
+           //   console.log("newline count: " +  this.hintString.split('/\r\n|\r|\n/').length);
+           
+           let splitString = this.hintString.split('\n');
+           // console.log("Line count: " + splitString.length);
+           if(splitString.length-1 > 5){
+                let matchString = this.hintString.match('\n');
+                this.hintString =  this.hintString.substring(matchString.index+1,this.hintString.length);
+            }
+
         }
-        console.log(this.generatedSecretNumber);
+       // console.log(this.generatedSecretNumber);
         // console.log(this.hintString);
-        this.powerupsAmountString = "x" + this.powerupTotal.div + "\t\t\t\t\t\t\t\tx" + this.powerupTotal.narrow + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.od;
+        this.powerupsAmountString = "x" + this.powerupTotal.div + "\t\t\t\t\t\t\t\tx" + this.powerupTotal.narrow + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.od + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.reveal + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.half;
         this.powerupAmountText.setText(this.powerupsAmountString);
         this.hintText.setText(this.hintString);
 
     }
+
+    matchCount = 0;
 
     keyboardInit() {
         zero = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO);
@@ -443,6 +500,7 @@ class MyScene extends Phaser.Scene {
 
         buttonController.on('pointerdown', function () {
             buttonController.setTint(tintColor);
+            this.clickSound.play();
             switch (powerupState) {
                 case 'div':
                     hintState.setCurrentState(hintState.DIV);
@@ -452,6 +510,12 @@ class MyScene extends Phaser.Scene {
                     break;
                 case 'narrowguess':
                     hintState.setCurrentState(hintState.NARROWGUESS);
+                    break;
+                case 'reveal':
+                    hintState.setCurrentState(hintState.REVEAL);
+                    break;
+                case 'half':
+                    hintState.setCurrentState(hintState.HALF);
                     break;
                 default:
                     console.log("Invalid powerup");
@@ -465,41 +529,61 @@ class MyScene extends Phaser.Scene {
     }
 
     powerUpReward(powerupTotal) {
-        if (Phaser.Math.Between(0, 100) <= 15) {
+        if (Phaser.Math.Between(0, 100) <= powerupDropChance.DIV) {
             powerupTotal.div++;
         }
-        if (Phaser.Math.Between(0, 100) <= 15) {
+        if (Phaser.Math.Between(0, 100) <= powerupDropChance.NARROWGUESS) {
             powerupTotal.narrow++;
         }
-        if (Phaser.Math.Between(0, 100) <= 15) {
+        if (Phaser.Math.Between(0, 100) <= powerupDropChance.ODDEVEN) {
             powerupTotal.od++;
         }
-
+        if (Phaser.Math.Between(0, 100) <= powerupDropChance.REVEAL) {
+            powerupTotal.reveal++;
+        }
+        if (Phaser.Math.Between(0, 100) <= powerupDropChance.HALF) {
+            powerupTotal.half++;
+        }
     }
 
     runPowerup(secretNumber, powerupTotal) {
 
         let usedPowerup = "";
 
+      //  this.clickSound.play();
         if (hintState.getCurrentState() === hintState.DIV && powerupTotal.div > 0) {
-            this.clickSound.play();
             usedPowerup = this.divPowerup(secretNumber);
             powerupTotal.div--;
             // console.log("Dtot: " + powerupTotal.div);
+        } else if (hintState.getCurrentState() === hintState.HALF && powerupTotal.half > 0) {
+        //    this.clickSound.play();
+            powerupTotal.half--;
+            usedPowerup = this.halfPowerup(secretNumber);
         } else if (hintState.getCurrentState() === hintState.ODDEVEN && powerupTotal.od > 0) {
-            this.clickSound.play();
+          //  this.clickSound.play();
             // this.winSound.play();
             usedPowerup = this.oddEvenPowerup(secretNumber);
             powerupTotal.od--;
         } else if (hintState.getCurrentState() === hintState.NARROWGUESS && powerupTotal.narrow > 0) {
-            this.clickSound.play();
+            //this.clickSound.play();
             // this.winSound.play();
             powerupTotal.narrow--;
             usedPowerup = this.narrowGuessPowerup(secretNumber);
+        } else if (hintState.getCurrentState() === hintState.REVEAL && powerupTotal.reveal > 0) {
+            //this.clickSound.play();
+            // this.winSound.play();
+            powerupTotal.reveal--;
+            usedPowerup = this.revealPowerup(secretNumber);
         } else {
 
         }
         return usedPowerup;
+    }
+
+    halfPowerup(secretNumber) {
+        let halfString = (secretNumber >= 50) ? "More than or equal to 50" : "Less than 50";
+        hintState.setCurrentState(-1);
+        return halfString;
     }
 
     oddEvenPowerup(secretNumber) {
@@ -511,6 +595,11 @@ class MyScene extends Phaser.Scene {
         }
         hintState.setCurrentState(-1);
         return numberType;
+    }
+
+    revealPowerup(secretNumber) {
+        hintState.setCurrentState(-1);
+        return "The secret number is: " + secretNumber;
     }
 
     divPowerup(secretNumber) {
@@ -531,7 +620,7 @@ class MyScene extends Phaser.Scene {
     narrowGuessPowerup(secretNumber) {
 
         let rangeArea = "";
-        console.log(secretNumber);
+       // console.log(secretNumber);
 
         let range = 30; //this is the percentage of where the answer is within.
         let lrange = Phaser.Math.Between(0, 100);
@@ -581,16 +670,18 @@ var GameStart = Phaser.Class({
         },
 
     preload: function () {
-        this.load.audio('applause','./assets/applause.mp3');
+        this.load.audio('applause', './assets/applause.mp3');
     },
 
     create: function () {
 
-        this.applauseSound = this.sound.add('applause',{volume:0.4});
+        this.applauseSound = this.sound.add('applause', {
+            volume: 0.4
+        });
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         // let titleName = "FOR THE MEME"
-        this.levelText = this.add.text(screenCenterX, screenCenterY-15, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
+        this.levelText = this.add.text(screenCenterX, screenCenterY - 15, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 50,
@@ -604,8 +695,8 @@ var GameStart = Phaser.Class({
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
-        let instructions = "Instructions:\n Type numbers to answer\n 'Enter' to submit answer\n Powerups:\n  Div: shows a list of number(0-10) divisible to the secret number\n  Narrow-down: shows an area of where the secret number\n  o/d: odd/even"
-        this.add.text(20, screenCenterY + 150, instructions, {
+        let instructions = "Instructions:\n Type a number to answer\n 'Enter' to submit answer\n Powerups:\n  Div: shows a list of number(0-10) divisible to the secret number\n  Narrow-down: shows an area of where the secret number\n  o/d: odd/even\n  reveal: reveals the secret number\n  half: shows which half of the spectrum the number is located"
+        this.add.text(20, screenCenterY + 130, instructions, {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 20,
@@ -638,11 +729,14 @@ var GameOver = Phaser.Class({
         },
 
     preload: function () {
-        this.load.audio('boo','./assets/crowdboo.mp3');
+        this.load.audio('boo', './assets/crowdboo.mp3');
+        this.load.audio('applause','./assets/applause.mp3');
     },
 
     create: function () {
-        this.sound.add('boo').play();
+        this.applauseSound = this.sound.add('applause');
+        this.booSound = this.sound.add('boo');
+        this.booSound.play();
         //mainSound.stop();
         this.cameras.main.setBackgroundColor('#000000');
         // console.log(screenText);
@@ -650,13 +744,23 @@ var GameOver = Phaser.Class({
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
 
+        var gameOverText = this.add.text(screenCenterX, screenCenterY -20, 'GAME OVER', {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 50
+        }).setOrigin(0.5);
+
         var spaceText = this.add.text(screenCenterX, screenCenterY + 50, 'Press A to play again.', {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 20
         }).setOrigin(0.5);
 
+        
+
         this.input.keyboard.on('keydown-A', () => {
+            this.booSound.stop();
+            this.applauseSound.play();
             this.scene.start('main-game');
         });
 
