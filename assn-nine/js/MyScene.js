@@ -696,10 +696,10 @@ var GameStart = Phaser.Class({
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         // let titleName = "FOR THE MEME"
-        this.levelText = this.add.text(screenCenterX, screenCenterY - 50, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
+        this.levelText = this.add.text(screenCenterX, screenCenterY - 60, "FOR THE MEME (͠≖ ͜ʖ͠≖)", {
             fill: '#ffffff',
             color: '#ffffff',
-            fontSize: 50,
+            fontSize: 70,
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
@@ -721,8 +721,10 @@ var GameStart = Phaser.Class({
         this.add.text(20, screenCenterY + 130, instructions, {
             fill: '#ffffff',
             color: '#ffffff',
-            fontSize: 20,
-            fontFamily: 'my_font_sans'
+            fontSize: 13,
+            fontFamily: 'readingSans',
+            align: 'left',
+            lineSpacing: 3.0
         }).setOrigin(0);
 
 
