@@ -219,6 +219,7 @@ class MyScene extends Phaser.Scene {
         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
         this.description = "";
         this.showMathTable = false;
+        
 
 
     }
@@ -267,6 +268,7 @@ class MyScene extends Phaser.Scene {
         //music.play();
         //  this.sound.get('game-over-sound').stop();
 
+        console.log("Welcome");
         /* this.scene.on('pointerdown',function(){
 
           this.input.on('gameobjectdown', this.onObjectClicked, this);
