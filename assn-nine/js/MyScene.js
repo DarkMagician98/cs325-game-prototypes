@@ -471,12 +471,11 @@ class MyScene extends Phaser.Scene {
 
                         this.hpDiv++;
                         let dmg = (this.hitpoints / this.hp) * this.hpDiv;
-                        this.hpDisplay.setScale(1, this.hitpoints - dmg);
+                        this.hpDisplay.ssetScale(1, this.hitpoints - dmg);
                     }
                 }
                 this.score += (tempScore * this.multiplier);
             }
-           // console.log(this.generatedSecretNumber);
 
             if (this.hpDiv === 2) {
                 this.heartBeat.play();
