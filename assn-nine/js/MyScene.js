@@ -169,6 +169,8 @@ class MyScene extends Phaser.Scene {
     powerupsAmountString
     description
     mathTable
+    wrongGuesses
+    wrongGuessText
     // powerupDescription
 
     powerupTotal = {
@@ -200,7 +202,7 @@ class MyScene extends Phaser.Scene {
         this.powerupTotal.narrow = 1;
         this.powerupTotal.reveal = 1;
         this.powerupTotal.half = 2;
-
+        this.wrongGuesses = "Wrong Guesses:\n";
         this.winSoundRate = 1;
         this.hpDiv = 0;
         this.hp = 3;
@@ -337,6 +339,18 @@ class MyScene extends Phaser.Scene {
             fontFamily: 'my_font_sans'
         }).setOrigin(0.5);
 
+        this.wrongGuessText = this.add.text(screenCenterX + moveAllXUI + 220, screenCenterY + moveAllYUI - 45, this.wrongGuesses, {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 25,
+            fontFamily: 'my_font_sans',
+            wordWrap: {
+                width: 180,
+                useAdvancedWrap: true
+            }
+
+        }).setOrigin(0.5);
+
         this.hintText = this.add.text(screenCenterX - 50 + moveAllXUI, screenCenterY + 230 + moveAllYUI, this.hintString, {
             fill: '#ffffff',
             color: '#ffffff',
@@ -419,6 +433,7 @@ class MyScene extends Phaser.Scene {
                 if (caseConst === 0) {
 
                     if ((myGuess >= extendedLeftRange && myGuess <= 100) || (myGuess <= rightRange)) {
+                        this.wrongGuesses = "Wrong Guesses:\n";
                         this.hintString = "";
 
                         this.winSound.play();
@@ -438,7 +453,8 @@ class MyScene extends Phaser.Scene {
                         this.powerUpReward(this.powerupTotal);
 
                     } else {
-                        this.cameraHandler.shake(0.05, 300);
+                        this.wrongGuesses += " " + myGuess;
+                        this.cameraHandler.shake(0.05, 300,true);
                         this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
@@ -454,6 +470,7 @@ class MyScene extends Phaser.Scene {
                     }
                 } else if (caseConst === 1) {
                     if ((myGuess <= extendedRightRange && myGuess >= 0) || (myGuess >= leftRange)) {
+                        this.wrongGuesses = "Wrong guesses:\n";
                         this.hintString = "";
                         this.winSound.play();
                         this.winSoundRate += .1;
@@ -471,7 +488,9 @@ class MyScene extends Phaser.Scene {
                         this.powerUpReward(this.powerupTotal);
                         //   this.score++;
                     } else {
-                        this.cameraHandler.shake(0.05, 300);
+                        this.wrongGuesses += " " + myGuess;
+                       // this.wrongGuesses.concat(" " + myGuess);
+                        this.cameraHandler.shake(0.05, 300,true);
                         this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
@@ -486,6 +505,7 @@ class MyScene extends Phaser.Scene {
                 } else if (caseConst === 2) {
                     //   console.log("LaR");
                     if (myGuess >= leftRange && myGuess <= rightRange) {
+                        this.wrongGuesses = "Wrong Guesses:\n";
                         this.hintString = "";
                         this.winSound.play();
                         this.winSoundRate += .1;
@@ -501,6 +521,8 @@ class MyScene extends Phaser.Scene {
 
                         this.powerUpReward(this.powerupTotal);
                     } else {
+                        this.wrongGuesses += " " + myGuess;
+                       // this.wrongGuesses.concat(" " + myGuess);
                         this.cameraHandler.shake(500, .015, true);
                         this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
@@ -538,9 +560,11 @@ class MyScene extends Phaser.Scene {
                         this.sound.get(soundString).play();
                         localStorage.setItem('highScore', this.score);
                     }
+                    else{
                     let pickSound = Phaser.Math.Between(0, 2);
                     let soundString = this.winArraySound[pickSound];
                     this.sound.get(soundString).play();
+                    }
 
                 } else {
 
@@ -578,6 +602,7 @@ class MyScene extends Phaser.Scene {
         this.powerupsAmountString = "x" + this.powerupTotal.div + "\t\t\t\t\t\t\t\tx" + this.powerupTotal.narrow + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.od + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.reveal + "\t\t\t\t\t\t\t\tx" + this.powerupTotal.half;
         this.powerupAmountText.setText(this.powerupsAmountString);
         this.hintText.setText(this.hintString);
+        this.wrongGuessText.setText(this.wrongGuesses);
 
     }
 
@@ -966,7 +991,6 @@ var GameStart = Phaser.Class({
 
     }
 });
-
 
 var GameOver = Phaser.Class({
     Extends: Phaser.Scene,
