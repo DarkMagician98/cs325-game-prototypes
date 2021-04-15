@@ -817,7 +817,7 @@ var GameStart = Phaser.Class({
 
     create: function () {
 
-        this.introSound = this.sound.add('intro');
+        this.introSound = this.sound.add('intro',{loop: true});
         this.introSound.play();
         this.applauseSound = this.sound.add('applause', {
             volume: 0.4
