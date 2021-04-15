@@ -250,7 +250,7 @@ class MyScene extends Phaser.Scene {
         this.load.image('big-frame', './assets/big_frame.png');
         this.load.image('reveal', './assets/rev-button.png');
         this.load.image('half', './assets/half-button.png');
-        this.load.image('mtable', './assets/math_table.png');
+        this.load.image('mtable', './assets/table_of_math.png');
         this.load.image('mtIcon', './assets/mtable.png');
 
     };
@@ -281,7 +281,7 @@ class MyScene extends Phaser.Scene {
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
 
-        //add sound to the game. 
+        //add sound to the ame. 
         this.heartBeat = this.sound.add('heartbeat', {
             loop: true,
             volume: .2,
