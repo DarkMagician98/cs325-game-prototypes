@@ -1,3 +1,5 @@
+import SampleScene from './SampleScene.js';
+
 //import "./phaser.js";
 // You can copy-and-paste the code from any of the examples at https://examples.phaser.io here.
 // You will need to change the `parent` parameter passed to `new Phaser.Game()` from
@@ -42,7 +44,7 @@
 
 var zero, one, two, three, four, five, six, seven, eight, nine, backspace, enter;
 
-var revealNumber;
+var revealNumber = 20;
 
 var hintState = {
     DIV: 0,
@@ -61,6 +63,8 @@ var hintState = {
     }
 }
 
+//exports.hintStat
+
 var powerupDropChance = {
     DIV: 15,
     ODDEVEN: 25,
@@ -68,20 +72,57 @@ var powerupDropChance = {
     REVEAL: 5,
     HALF: 50,
 
-    resetDropChance: function(){
-        this.DIV =  15;
+    resetDropChance: function () {
+        this.DIV = 15;
         this.ODDEVEN = 25;
         this.NARROWGUESS = 15;
         this.REVEAL = 5;
         this.HALF = 50;
     },
 
-    increaseDropChance: function(){
+    increaseDropChance: function () {
         this.DIV += 3;
         this.ODDEVEN += 5;
         this.NARROWGUESS += 3;
         this.REVEAL += 1;
         this.HALF += 10;
+    }
+}
+
+var powerupDescription = {
+    DIV: 0,
+    ODDEVEN: 1,
+    NARROWGUESS: 2,
+    REVEAL: 3,
+    HALF: 4,
+    CURRENTSTATE: -1,
+
+    setCurrentState: function (state) {
+        this.CURRENTSTATE = state;
+    },
+
+    getDescription: function () {
+        let desc = "";
+        switch (this.CURRENTSTATE) {
+            case this.DIV:
+                desc = "This powerup shows the numbers divisible to the secret number.";
+                break;
+            case this.ODDEVEN:
+                desc = "Shows whether the secret number is odd/even.";
+                break;
+            case this.NARROWGUESS:
+                desc = "Shows an area that surrounds the secret number.";
+                break;
+            case this.HALF:
+                desc = "Shows which half of the spectrum the secret number is.";
+                break;
+            case this.REVEAL:
+                desc = "Reveals the secret number";
+                break;
+            default:
+                desc = "None";
+        }
+        return desc;
     }
 }
 
@@ -92,15 +133,17 @@ class MyScene extends Phaser.Scene {
     }
 
 
+
+
     //general variabales
     generatedSecretNumber
     max = 100;
-    level
+    level = 0
     percentRate = .10
     multiplier
 
     //prize variables
- 
+
 
     //sound variabales 
     clickSound
@@ -122,6 +165,8 @@ class MyScene extends Phaser.Scene {
     narrowTotal
     odTotal
     powerupsAmountString
+    description
+    // powerupDescription
 
     powerupTotal = {
         div: 1,
@@ -141,8 +186,12 @@ class MyScene extends Phaser.Scene {
 
     init() {
 
-        this.powerupTotal.div = Phaser.Math.Between(2,3);
-        this.powerupTotal.od = Phaser.Math.Between(2,3);
+        this.sys.game._HIGHSCORE = undefined;
+
+        //  this.scene.add('sample-scene');
+
+        this.powerupTotal.div = Phaser.Math.Between(2, 3);
+        this.powerupTotal.od = Phaser.Math.Between(2, 3);
         this.powerupTotal.narrow = 1;
         this.powerupTotal.reveal = 0;
         this.powerupTotal.half = 2;
@@ -163,6 +212,7 @@ class MyScene extends Phaser.Scene {
         this.answerResult = "";
         this.hintString = "";
         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
+        this.description = "";
     }
 
 
@@ -187,18 +237,25 @@ class MyScene extends Phaser.Scene {
 
     create() {
 
-        
-        
+
+
         //CENTERS Object on the screen.
         const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-        
+
         //add sound to the game. 
-        this.heartBeat = this.sound.add('heartbeat',{loop:true,volume:.2,rate:.8});
+        this.heartBeat = this.sound.add('heartbeat', {
+            loop: true,
+            volume: .2,
+            rate: .8
+        });
         this.memeSound = this.sound.add('memewin', );
         this.clickSound = this.sound.add('click', );
         this.winSound = this.sound.add('win');
-        this.wrongAnswerSound = this.sound.add('wrongNumber',{rate:1.3,volume:.5});
+        this.wrongAnswerSound = this.sound.add('wrongNumber', {
+            rate: 1.3,
+            volume: .5
+        });
 
         let buttonOffsetX = 120,
             buttonOffsetY = 100;
@@ -219,6 +276,15 @@ class MyScene extends Phaser.Scene {
         this.add.image(screenCenterX + 20 + moveAllXUI, screenCenterY + moveAllYUI, 'frame').setOrigin(0.5);
 
         this.hpDisplay = this.add.image(screenCenterX - 115 + 20 + moveAllXUI, screenCenterY + 63 + moveAllYUI, 'lifeline').setScale(.9, this.hitpoints).setDepth(0);
+
+    
+        this.add.text(screenCenterX - 80 + moveAllXUI, screenCenterY - 150 + moveAllYUI, "TYPE YOUR ANSWER: ", {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 22,
+            fontFamily: 'my_font_sans'
+        }).setOrigin(0);
+
 
         this.powerupAmountText = this.add.text(moveAllXUI + buttonX + screenCenterX - buttonOffsetX + 60, moveAllYUI + buttonY + screenCenterY + buttonOffsetY + 10, this.powerupsAmountString, {
             fill: '#ffffff',
@@ -255,10 +321,23 @@ class MyScene extends Phaser.Scene {
             fontFamily: 'my_font_sans'
         }).setOrigin(0);
 
+        this.powerupDescription = this.add.text(screenCenterX -300 + moveAllXUI, screenCenterY - 95 + moveAllYUI, "", {
+            fill: '#ffffff',
+            color: '#ffffff',
+            fontSize: 22,
+            fontFamily: 'my_font_sans',
+            wordWrap:{
+                width: 150,
+                useAdvancedWrap: true
+            }
+        }).setOrigin(0).setDepth(2);
+
         this.keyboardInit();
     }
 
     update() {
+
+        this.powerupDescription.setText(this.description);
 
         this.keyboardKeys();
 
@@ -291,11 +370,11 @@ class MyScene extends Phaser.Scene {
                 } else if (rightRange > 100) {
                     extendedRightRange = rightRange >= 100 ? (this.max + rightRange) % this.max : rightRange % this.max;
                     caseConst = 1;
-                   // console.log("Left: " + leftRange + " Right:" + extendedRightRange);
+                    // console.log("Left: " + leftRange + " Right:" + extendedRightRange);
 
                 } else {
                     caseConst = 2;
-                   // console.log("Left: " + leftRange + " Right:" + rightRange);
+                    // console.log("Left: " + leftRange + " Right:" + rightRange);
 
                 }
 
@@ -314,13 +393,14 @@ class MyScene extends Phaser.Scene {
 
                         tempScore = 1;
                         this.multiplier++;
+                        //this.level++;
 
                         powerupDropChance.increaseDropChance();
 
                         this.powerUpReward(this.powerupTotal);
 
                     } else {
-
+ 
                         this.wrongAnswerSound.play();
                         this.winSoundRate = 1;
                         this.winSound.setRate(this.winSoundRate);
@@ -341,12 +421,13 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                       // console.log("Correct");
+                        // console.log("Correct");
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
                         tempScore = 1;
                         this.multiplier++;
+                        // this.level++;
 
-                        
+
                         powerupDropChance.increaseDropChance();
 
                         this.powerUpReward(this.powerupTotal);
@@ -371,11 +452,12 @@ class MyScene extends Phaser.Scene {
                         this.winSoundRate += .1;
                         this.winSound.setRate(this.winSoundRate);
 
-                      //  console.log("Correct");
+                        //  console.log("Correct");
                         this.generatedSecretNumber = Phaser.Math.Between(0, 100);
                         tempScore = 1;
                         this.multiplier++;
-                        
+                        // this.level++;
+
                         powerupDropChance.increaseDropChance();
 
                         this.powerUpReward(this.powerupTotal);
@@ -394,17 +476,21 @@ class MyScene extends Phaser.Scene {
                 }
                 this.score += (tempScore * this.multiplier);
             }
+           // console.log(this.generatedSecretNumber);
 
-            if(this.hpDiv === 2){
+            if (this.hpDiv === 2) {
                 this.heartBeat.play();
             }
 
             if (this.hpDiv === 3) {
+
+
                 revealNumber = this.generatedSecretNumber;
                 this.heartBeat.stop();
                 this.matchCount = 0;
 
                 let highScore = localStorage.getItem('highScore');
+                this.sys.game._HIGHSCORE = highScore;
 
                 if (highScore !== null) {
                     if (highScore < this.score) {
@@ -423,22 +509,22 @@ class MyScene extends Phaser.Scene {
         }
 
         let tempString = this.runPowerup(this.generatedSecretNumber, this.powerupTotal);
-       
+
         if (tempString) {
-           // console.log("in string");
+            // console.log("in string");
             this.hintString += tempString + '\n';
-           // console.log("Index:" + this.hintString.match('\n').index);
-           //   console.log("newline count: " +  this.hintString.split('/\r\n|\r|\n/').length);
-           
-           let splitString = this.hintString.split('\n');
-           // console.log("Line count: " + splitString.length);
-           if(splitString.length-1 > 5){
+            // console.log("Index:" + this.hintString.match('\n').index);
+            //   console.log("newline count: " +  this.hintString.split('/\r\n|\r|\n/').length);
+
+            let splitString = this.hintString.split('\n');
+            // console.log("Line count: " + splitString.length);
+            if (splitString.length - 1 > 5) {
                 let matchString = this.hintString.match('\n');
-                this.hintString =  this.hintString.substring(matchString.index+1,this.hintString.length);
+                this.hintString = this.hintString.substring(matchString.index + 1, this.hintString.length);
             }
 
         }
-       // console.log(this.generatedSecretNumber);
+        // console.log(this.generatedSecretNumber);
         // console.log(this.hintString);
         this.powerupsAmountString = "x" + this.powerupTotal.div + "\t\t\t\t\t\t\t\tx" + this.powerupTotal.narrow + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.od + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.reveal + "\t\t\t\t\t\t\t\t x" + this.powerupTotal.half;
         this.powerupAmountText.setText(this.powerupsAmountString);
@@ -538,6 +624,48 @@ class MyScene extends Phaser.Scene {
             buttonController.clearTint();
         }, this);
 
+        buttonController.on('pointerover', function () {
+            switch (powerupState) {
+                case 'div':
+                    powerupDescription.setCurrentState(powerupDescription.DIV);
+                    this.description = powerupDescription.getDescription();
+                    powerupDescription.setCurrentState(-1);
+                    // hintState.setCurrentState(hintState.DIV);
+                    break;
+                case 'oddeven':
+                    powerupDescription.setCurrentState(powerupDescription.ODDEVEN);
+                    this.description = powerupDescription.getDescription();
+                    powerupDescription.setCurrentState(-1);
+                    //  hintState.setCurrentState(hintState.ODDEVEN);
+                    break;
+                case 'narrowguess':
+                    powerupDescription.setCurrentState(powerupDescription.NARROWGUESS);
+                    this.description = powerupDescription.getDescription();
+                    powerupDescription.setCurrentState(-1);
+                    //  hintState.setCurrentState(hintState.NARROWGUESS);
+                    break;
+                case 'reveal':
+                    powerupDescription.setCurrentState(powerupDescription.REVEAL);
+                    this.description = powerupDescription.getDescription();
+                    powerupDescription.setCurrentState(-1);
+                    // hintState.setCurrentState(hintState.REVEAL);
+                    break;
+                case 'half':
+                    powerupDescription.setCurrentState(powerupDescription.HALF);
+                    this.description = powerupDescription.getDescription();
+                    powerupDescription.setCurrentState(-1);
+                    //  hintState.setCurrentState(hintState.HALF);
+                    break;
+                default:
+                    console.log("Invalid powerup");
+            }
+        }, this);
+        
+        buttonController.on('pointerout', function () {
+           this.description = "";
+        }, this);
+
+
     }
 
     powerUpReward(powerupTotal) {
@@ -562,17 +690,17 @@ class MyScene extends Phaser.Scene {
 
         let usedPowerup = "";
 
-      //  this.clickSound.play();
+        //  this.clickSound.play();
         if (hintState.getCurrentState() === hintState.DIV && powerupTotal.div > 0) {
             usedPowerup = this.divPowerup(secretNumber);
             powerupTotal.div--;
             // console.log("Dtot: " + powerupTotal.div);
         } else if (hintState.getCurrentState() === hintState.HALF && powerupTotal.half > 0) {
-        //    this.clickSound.play();
+            //    this.clickSound.play();
             powerupTotal.half--;
             usedPowerup = this.halfPowerup(secretNumber);
         } else if (hintState.getCurrentState() === hintState.ODDEVEN && powerupTotal.od > 0) {
-          //  this.clickSound.play();
+            //  this.clickSound.play();
             // this.winSound.play();
             usedPowerup = this.oddEvenPowerup(secretNumber);
             powerupTotal.od--;
@@ -632,7 +760,7 @@ class MyScene extends Phaser.Scene {
     narrowGuessPowerup(secretNumber) {
 
         let rangeArea = "";
-       // console.log(secretNumber);
+        // console.log(secretNumber);
 
         let range = 30; //this is the percentage of where the answer is within.
         let lrange = Phaser.Math.Between(0, 100);
@@ -670,6 +798,8 @@ class MyScene extends Phaser.Scene {
 
 }
 
+export default MyScene;
+
 var GameStart = Phaser.Class({
     Extends: Phaser.Scene,
 
@@ -682,7 +812,7 @@ var GameStart = Phaser.Class({
         },
 
     preload: function () {
-        this.load.audio('intro','./assets/intro_music.mp3');
+        this.load.audio('intro', './assets/intro_music.mp3');
         this.load.audio('applause', './assets/applause.mp3');
     },
 
@@ -729,9 +859,9 @@ var GameStart = Phaser.Class({
 
 
         this.input.keyboard.once('keydown-F', () => {
-           // this.introSound.stop();
-           this.introSound.setVolume(0.1);
-           this.applauseSound.play();
+            // this.introSound.stop();
+            this.introSound.setVolume(0.1);
+            this.applauseSound.play();
             this.scene.start('main-game');
 
         });
@@ -756,12 +886,13 @@ var GameOver = Phaser.Class({
 
     preload: function () {
         this.load.audio('boo', './assets/crowdboo.mp3');
-        this.load.audio('applause','./assets/applause.mp3');
+        this.load.audio('applause', './assets/applause.mp3');
     },
 
     create: function () {
+
         this.applauseSound = this.sound.add('applause');
-  
+
         //mainSound.stop();
         this.cameras.main.setBackgroundColor('#000000');
         // console.log(screenText);
@@ -775,7 +906,7 @@ var GameOver = Phaser.Class({
             fontSize: 30
         }).setOrigin(0.5);
 
-        var gameOverText = this.add.text(screenCenterX, screenCenterY -50, 'GAME OVER', {
+        var gameOverText = this.add.text(screenCenterX, screenCenterY - 50, 'GAME OVER', {
             fill: '#ffffff',
             color: '#ffffff',
             fontSize: 80
@@ -787,7 +918,7 @@ var GameOver = Phaser.Class({
             fontSize: 15
         }).setOrigin(0.5);
 
-        
+
 
         this.input.keyboard.on('keydown-A', () => {
             this.applauseSound.play();
@@ -807,7 +938,7 @@ const game = new Phaser.Game({
     parent: 'game',
     width: 720,
     height: 640,
-    scene: [GameStart, MyScene, GameOver],
+    scene: [GameStart, MyScene, GameOver, SampleScene],
     physics: {
         default: 'arcade',
         arcade: {
