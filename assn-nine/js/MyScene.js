@@ -268,7 +268,7 @@ class MyScene extends Phaser.Scene {
         //music.play();
         //  this.sound.get('game-over-sound').stop();
 
-        console.log("Welcome");
+        
         /* this.scene.on('pointerdown',function(){
 
           this.input.on('gameobjectdown', this.onObjectClicked, this);
